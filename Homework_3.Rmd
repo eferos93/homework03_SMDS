@@ -1,0 +1,128 @@
+---
+title: "Homework 3"
+author: "Group H - A. Spagnolo, A. Vegliach, V. Plesco, E. Fabrici"
+date: "13/05/2020"
+output:
+  html_document:
+    toc: yes
+  beamer_presentation:
+    highlight: tango
+  include: null
+  ioslides_presentation:
+    highlight: tango
+  pdf_document:
+    highlight: tango
+    keep_tex: yes
+    toc: yes
+  slide_level: 2
+  slidy_presentation:
+    fig.height: 3
+    fig.width: 4
+    highlight: tango
+header-includes:
+- \usepackage{color}
+- \definecolor{Purple}{HTML}{911146}
+- \definecolor{Orange}{HTML}{CF4A30}
+- \setbeamercolor{alerted text}{fg=Orange}
+- \setbeamercolor{frametitle}{bg=Purple}
+institute: University of Udine & University of Trieste
+graphics: yes
+subtitle: 
+fontsize: 10pt
+---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.align = 'center', warning=FALSE, message=FALSE, fig.asp=0.625, dev='png', global.par = TRUE, dev.args=list(pointsize=10), fig.path = 'figs/')
+library(MASS)
+```
+```{r setup, include=FALSE}
+library(knitr)
+local({
+  hook_plot = knit_hooks$get('plot')
+  knit_hooks$set(plot = function(x, options) {
+    paste0('\n\n----\n\n', hook_plot(x, options))
+  })
+})
+```
+
+## ***LEC*** Exercises
+
+**Exercise 1**
+
+Compute the bootstrap-based confidence interval for the `score` dataset using the studentized method.
+
+**Exercise 2**
+
+Compute bootstrap-based confidence intervals for the `score` dataset using the `boot` package.
+ 
+
+## ***LAB*** Exercises
+
+**Exercise 1**
+
+Use `nlm` to compute the variance for the estimator $\hat{\omega} = (\log( \hat{\gamma} ), \log( \hat{\beta} )$  and `optimHess` for the variance of $\hat{\theta} = (\hat{\gamma}, \hat{\beta})$
+
+
+**Exercise 2**
+
+The Wald confidence interval with level $1-\alpha$ is defined as:
+$$\hat{\gamma} \pm z_{1-\frac{\alpha}{2}} j_P(\hat{\gamma})^{-\frac{1}{2}}$$
+Compute the Wald confidence interval of level 0.95 and plot the results.
+ 
+**Exercise 3**
+
+Repeat the steps above — write the profile log-likelihood, plot it and find the deviance confidence intervals — considering this time $\gamma$ as a nuisance parameter and $\beta$ as the parameter of interest.
+ 
+**Exercise 5**
+
+In `sim` in the code above, you find the MCMC output which allows to approximate the posterior distribution of our parameter of interest with $S$ draws of $\theta$. Please, produce an histogram for these random draws $\theta^{(1)},...,\theta^{(S)}$, compute the empirical quantiles, and overlap the true posterior distribution.
+ 
+**Exercise 6**
+ 
+Launch the following line of $R$ code:
+```{}
+posterior <- as.array(fit)
+```
+Use now the `bayesplot` package. Read the help and produce for this example, using the object posterior, the following plots:
+
+* posterior intervals.
+* posterior areas.
+* marginal posterior distributions for the parameters.
+
+**Quickly comment.**
+
+**Exercise 7**
+
+Suppose you receive $n=15$ phone calls in a day, and you want to build a model to assess their average length. Your likelihood for each call length is $y_i \sim Poisson(\lambda)$. Now, you have to choose the prior $\pi(\lambda)$. Please, tell which of these priors is adequate to describe the problem, and provide a short motivation for each of them:
+
+1) $\pi(\lambda) = Beta(4,2)$;
+2) $\pi(\lambda) = Normal(1,2)$;
+3) $\pi(\lambda) = Gamma(4,2)$;
+
+Now, compute your posterior as $\pi(\lambda | y) \propto L(\lambda;y)\pi(\lambda)$ for the selected prior. If your first choice was correct, you will be able to compute it analitically.
+ 
+**Exercise 8**
+
+Go to this link: [rstan](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started), and follow the instructions to download and install the `rstan` library. Once you did it succesfully, open the file model called `biparametric.stan, and replace the line:
+
+$$target+ = cauchy\_lpdf(sigma | 0, 2.5);$$
+
+with the following one:
+
+$$target+ = uniform\_lpdf(sigma | 0.1, 10);$$
+Which prior are you now assuming for your parameter $\sigma$? Reproduce the same plots as above and briefly comment.
+
+**Exercise 9**
+
+Reproduce the first plot above for the soccer goals, but this time by replacing Prior 1 with a $Gamma(2,4)$. Then, compute the final Bayes factor matrix (BR_matrix) with this new prior and the other ones unchanged, and comment. Is still Prior 2 favorable over all the others?
+  
+**Exercise 10**
+
+Let $y=(1,0,0,1,0,0,0,0,0,1,0,0,1,0)$ collect the results of tossing $n=14$ times an unfair coin, where 1 denotes heads and 0 tails, and $p=Prob(y_i=1)$
+
+* Looking at the `Stan` code for the other models, write a short `Stan` Beta-Binomial model, where $p$ has a $Beta(a,b)$ prior with $a=3$, $b=3$;
+
+* extract the posterior distribution with the function `extract()`;
+
+* produce some plots with the `bayesplot` package and comment;
+
+* compute analitically the posterior distribution and compare it with the `Stan` distribution.
