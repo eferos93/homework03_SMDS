@@ -71,7 +71,6 @@ Compute the Wald confidence interval of level 0.95 and plot the results.
 *Solution*
 We define and plot the Weibull log-likelihood and we get the MLE for the two parameters using `optim`.
 
-
 ```{r, echo=TRUE}
 
 log_lik_weibull <- function( data, param){
