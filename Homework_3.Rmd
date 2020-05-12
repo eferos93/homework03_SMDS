@@ -105,7 +105,22 @@ Use now the `bayesplot` package. Read the help and produce for this example, usi
 * posterior areas.
 * marginal posterior distributions for the parameters.
 
-**Quickly comment.**
+Quickly comment.
+
+**Solution**
+
+```{r lab_06_p, code = readLines("src/lab_06_prereq.R"), echo=FALSE, results='hide'}
+```
+```{r lab_06, code = readLines("src/lab_06.R"), echo=TRUE}
+```
+
+The parameter of interest, $\theta$, is the true mean of the $y_i$. After having performed the MCMC simulation, we obtain an estime for the parameter $\theta$.
+
+The first plot represent the posterior uncertainty interval, or credibility interval, for $\theta$. We can see that the value of the posterior mean, represented by the light blue point, is around $2.6$. The thick blue segment shows 50% interval, whereas the thinner light blue line show the 90% interval. So we can say that, with 50% probability the parameter $\theta$ falls between the values $2.3$ and $3.8$
+
+The second plot represent the posterior areas. The thick blue line shows the value of the posterior mean. The curve represent the estimated posterior density. The light blue shaded area under the posterior density curve is the 80%  posterior uncertainty intervals. This plot shows all the information represented in the first one and some more, such as the posterior density.
+
+Finally the third plot represent the marginal posterior denisty for the parameter $\theta$. Even if it is shown by tue posterior areas plot too, in this case it is represented through an hystogram. Changing the value of the parameter `binwidth` we can vary the number of bins of the histogram and so how many observations are summarized by each bin.
 
 **Exercise 7**
 
@@ -116,7 +131,46 @@ Suppose you receive $n=15$ phone calls in a day, and you want to build a model t
 3) $\pi(\lambda) = Gamma(4,2)$;
 
 Now, compute your posterior as $\pi(\lambda | y) \propto L(\lambda;y)\pi(\lambda)$ for the selected prior. If your first choice was correct, you will be able to compute it analitically.
- 
+
+**Solution**
+
+Given that $y_i \sim Poisson(\lambda)$ it is needed that $\lambda > 0$. 
+
+1. The beta distribution granantees this condition but it also limits the upper bound to 1. So the parameter $\lambda$, that is also the mean of the Possion distribution would be limited between 0 and 1 and this is not acceptable.
+
+2. The normal distribution does not guarantee the positivity of the parameter so it's not acceptables.
+
+3. The gamma distribution is defined in the interval $[0, + \infty]$. It guarantees that $\lambda > 0$ and it does not limit the upper boud. This one seems to be the best choice.
+
+Let's try to compute analitically the posterior distribution. We know that
+$$
+L(\lambda) = \prod_{i=1}^n e^{- \lambda} \frac{1}{x_i !} \lambda^{x_i} \\
+\text{and so: }\\
+\begin{aligned}
+l(\lambda) &= \sum_{i=1}^n ( -\lambda - \log(x_i!) +x_i \log{\lambda}) \\
+&= -n\lambda + \log{\lambda} \sum_{i=1}^n x_i + C_1 \end{aligned}\\
+Gamma(\lambda | \alpha, \beta) = \frac{\beta^{\alpha}}{\Gamma(\alpha)} \lambda^{\alpha -1} e^{-\beta \lambda}\\
+\text{and so: } \log Gamma(\lambda | \alpha, \beta) = (\alpha -1) \log \lambda - \beta \lambda + C_2
+$$
+
+Hence
+
+$$
+\begin{aligned}
+\log p(\lambda | x) &= l(\lambda) + \log Gamma(\lambda | \alpha, \beta)  - \log p(y) \\
+&= -n\lambda + \log{\lambda} \sum_{i=1}^n x_i +(\alpha -1) \log \lambda - \beta \lambda + C \\
+&= \log \lambda ( \alpha - 1 + \sum_{i=1}^n x_i) - \lambda (\beta + n) + C \\
+&= \log Gamma(\alpha + \sum_{i=1}^n x_i, \beta + n)
+\end{aligned}
+$$
+
+So we can see that the Gamma distribution is the coniugate prior of the Poisson distribution since the posterior is still a Gamma with updated parameters.
+
+Let's visualize this result with R.
+
+```{r lab_7, code = readLines("src/lab_07.R"), echo=TRUE}
+```
+
 **Exercise 8**
 
 Go to this link: [rstan](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started), and follow the instructions to download and install the `rstan` library. Once you did it succesfully, open the file model called `biparametric.stan, and replace the line:
@@ -127,6 +181,24 @@ with the following one:
 
 $$target+ = uniform\_lpdf(sigma | 0.1, 10);$$
 Which prior are you now assuming for your parameter $\sigma$? Reproduce the same plots as above and briefly comment.
+
+**Solution**
+
+After having changed the `biparametric.stan` file as requested, we performed the MCMC simulation again.
+
+```{r lab_08, code = readLines("src/lab_08.R"), echo=TRUE}
+```
+
+We are assuming that 
+$$
+y_1,...,y_n \sim \mathbb{N} (\theta; \sigma^2) \\
+\theta \sim Unif(−10,10) \\
+\sigma^2 \sim Unif(0.1, 10)
+$$
+
+The value of $\sigma^2$ during the simulation varys a bit more that the simulation done during the Laboratory. Indeed, thanks to the `traceplot`, we can see that the majority of values are in a wider range, that goes from 1 to 3. Nevertheless the maximum reached value is lower the in the previous case.
+
+The second plot confirm our observation. Indeed the shaded area, which represent the 80% interval is wider then the one represented in the Laboratory.
 
 **Exercise 9**
 
@@ -164,3 +236,64 @@ Let $y=(1,0,0,1,0,0,0,0,0,1,0,0,1,0)$ collect the results of tossing $n=14$ time
 * produce some plots with the `bayesplot` package and comment;
 
 * compute analitically the posterior distribution and compare it with the `Stan` distribution.
+
+**Solution**
+
+First of all we write a `Stan` code for a Beta-Binomial model as requested.
+
+```{stan, output.var="lab10"}
+data {
+  int<lower=0> N;
+  int y[N];
+  real<lower=0> a;
+  real<lower=0> b;
+}
+
+parameters {
+  real<lower=0, upper=10> p;
+}
+
+model {
+  target+=binomial_lpmf(y | N, p);
+  target+=gamma_lpdf(p|a,b);
+}
+
+```
+
+```{r lab_10, code = readLines("src/lab_10.R"), echo=TRUE}
+```
+After having performed the MCMC simulation and having extracted the posterior distribution we produced some plots. From that we can obtain several information about the posterior distribution of the parameter of interest $p$. 
+
+First of all we can see that the posterior mean is around $0.035$ and both the 50% posterior interval and the 90% posterior interval al not symmetrical. Indeed the first one is larger on the left side whereas the second one in wider on the right side. This means that the mass of the distribution is shifted through the left but it has a longer tail on the right side. The second and the tird plots confirm this observation. We can see that the posterior distribution is not symmetrical, its mass is shifted through 0 but it has a longer tail on the right side. Finally, form the last plot we can see the denisty posterior distribution estimated form the 4 Markov chains. They are quite similar but with some differences expecially in the more frequent values.
+
+Let's compute the posterior distribution analitically.
+$$
+\begin{matrix}
+p(y|p) \sim Bernoulli(p) & p \in [0, 1] \\
+p(p) \sim Beta(p|\alpha, \beta) & \\
+\end{matrix}
+$$
+Let's compute the posterior distribution using the logarithm transformation. We know that
+$$
+L(p) = {N\choose K}  p^K + (1-p)^{N-K} \\
+\text{and so: } l(p) = K \log p + (N-K) \log (1-p) + C_1\\
+Beta(p | \alpha, \beta) = \frac{1}{B(\alpha, \beta)} p^{\alpha -1} (1-p)^{\beta-1} \\
+\text{and so: } \log Beta(p | \alpha, \beta) = (\alpha -1) \log p + (\beta -1) \log (1-p) + C_2
+$$
+Hence
+
+$$
+\begin{aligned}
+\log p(p|y) &= l(p) + \log Beta(p|\alpha, \beta) - \log p(y) \\
+&= K \log p + (N-K) \log (1-p)  + (\alpha -1) \log p + (\beta -1) \log (1-p) + C\\
+&= (K + \alpha -1) \log p + (N - K + \beta -1) \log (1-p) + C \\
+&= \log Beta(p | K+ \alpha , N-K + \beta)\\
+\end{aligned}
+$$
+
+So we know that the Beta distribution is the coniugate prior of the Bernoulli distribution since the posterior is still a Beta with updated parameters.
+
+Let's compare this analitical result with the result obtained by the MCMC simulation.
+
+```{r lab_10b, code = readLines("src/lab_10b.R"), echo=TRUE}
+```
