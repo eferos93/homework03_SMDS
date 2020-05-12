@@ -72,14 +72,16 @@ Compute the Wald confidence interval of level 0.95 and plot the results.
 
 We define and plot the Weibull log-likelihood and we get the MLE for the two parameters using `optim`.
 
-```{r, code="src/lab_02.R", echo=TRUE}
+```{r, code=readLines("src/lab_02.R"), echo=TRUE}
 ```
 
 We then compute the information matrix, which gives us the standard errors for the two parameters. Then we compute the Wald confidence interval of level 0.95.
 
-```{r, code ="scr/lab_02b.R",echo=TRUE}
+```{r, code =readLines("src/lab_02b.R"),echo=TRUE}
 ```
  
+We can see that the Wald confidence interval of level 0.95 is $[4.45; 9.32]$.
+
 **Exercise 3**
 
 Repeat the steps above — write the profile log-likelihood, plot it and find the deviance confidence intervals — considering this time $\gamma$ as a nuisance parameter and $\beta$ as the parameter of interest.
@@ -130,117 +132,18 @@ Reproduce the first plot above for the soccer goals, but this time by replacing 
 
 ***Solution***
 
-```{r, echo=TRUE}
-library(LearnBayes)
-data(soccergoals)
-
-y <- soccergoals$goals
-
-#write the likelihood function via the gamma distribution
-
-
-lik_pois<- function(data, theta){
-  n <- length(data)
-  lambda <- exp(theta)
-  dgamma(lambda, shape =sum(data)+1, scale=1/n)
-}
-
-prior_gamma <- function(par, theta){
-  lambda <- exp(theta)
-  dgamma(lambda, par[1], rate=par[2])*lambda  
-}
-
-prior_norm <- function(npar, theta){
-  lambda=exp(theta)  
-  (dnorm(theta, npar[1], npar[2]))
-  
-}
-
-lik_pois_v <- Vectorize(lik_pois, "theta")
-prior_gamma_v <- Vectorize(prior_gamma, "theta")
-prior_norm_v <- Vectorize(prior_norm, "theta")
-
-
-#likelihood
-curve(lik_pois_v(theta=x, data=y), xlim=c(-1,4), xlab=expression(theta), ylab = "density", lwd =2 )
-#prior 1 with parameters 2 and 4
-curve(prior_gamma_v(theta=x, par=c(2, 4)), lty =2, col="red", add = TRUE, lwd =2)
-#prior 2 
-curve(prior_norm_v(theta=x, npar=c(1, .5)), lty =3, col="blue", add =TRUE, lwd=2)
-#prior 3 
-curve(prior_norm_v(theta=x, npar=c(2, .5)), lty =4, col="green", add =TRUE, lwd =2)
-#prior 4 
-curve(prior_norm_v(theta=x, npar=c(1, 2)), lty =5, col="violet", add =TRUE, lwd =2)
-legend(2.6, 1.8, c("Lik.", "Ga(2,4)", "N(1, 0.25)", "N(2,0.25)","N(1, 4)" ),
-       lty=c(1,2,3,4,5), col=c("black", "red", "blue", "green", "violet"),lwd=2, cex=0.9)
+```{r, code =readLines("src/lab_09.R"), echo=TRUE}
 ```
 This first prior is no more that similar to any of the other ones.
 
 Let's compute the log-posteriors.
 
-```{r, echo=TRUE}
- 
-logpoissongamma <- function(theta, datapar){
-  data <- datapar$data
-  par <- datapar$par
-  lambda <- exp(theta)
-  log_lik <- log(lik_pois(data, theta))
-  log_prior <- log(prior_gamma(par, theta))
-  return(log_lik+log_prior)
-}
-
-logpoissongamma.v <- Vectorize( logpoissongamma, "theta")
-
-
-logpoissonnormal <- function( theta, datapar){
-  data <- datapar$data
-  npar <- datapar$par
-  lambda <- exp(theta)
-  log_lik <- log(lik_pois(data, theta))
-  log_prior <- log(prior_norm(npar, theta))
-  return(log_lik+log_prior)
-}  
-logpoissonnormal.v <- Vectorize( logpoissonnormal, "theta")
-
-#log-likelihood
-curve(log(lik_pois(y, theta=x)), xlim=c(-1,4),ylim=c(-20,2), lty =1,
-      ylab="log-posteriors", xlab=expression(theta))
-#log posterior 1
-curve(logpoissongamma.v(theta=x, list(data=y, par=c(2, 4))), col="red", xlim=c(-1,4),ylim=c(-20,2), lty =1, add =TRUE)
-#log posterior 2
-curve(logpoissonnormal.v( theta=x, datapar <- list(data=y, par=c(1, .5))), lty =1, col="blue",  add =TRUE)
-#log posterior 3
-curve(logpoissonnormal.v( theta=x, datapar <- list(data=y, par=c(2, .5))), lty =1, col="green", add =TRUE, lwd =2)
-#log posterior 4
-curve(logpoissonnormal.v( theta=x, list(data=y, par=c(1, 2))), lty =1, col="violet", add =TRUE, lwd =2)
-legend(2.6, 1.3, c( "loglik", "lpost 1", "lpost 2", "lpost 3", "lpost 4" ),
-       lty=1, col=c("black", "red", "blue", "green", "violet"),lwd=2, cex=0.9)
-
+```{r, code =readLines("src/lab_09b.R"), echo=TRUE}
 ```
 
 Now we want to compute the BF matrix in order to compare the prior distributions.
 
- ```{r, echo=TRUE}
-datapar <- list(data=y, par=c(2, 4))
-fit1 <- laplace(logpoissongamma, .5, datapar)
-datapar <- list(data=y, par=c(1, .5))
-fit2 <- laplace(logpoissonnormal, .5, datapar)
-datapar <- list(data=y, par=c(2, .5))
-fit3 <- laplace(logpoissonnormal, .5, datapar)
-datapar <- list(data=y, par=c(1, 2))
-fit4 <- laplace(logpoissonnormal, .5, datapar)
-
-logmarg <- c(fit1$int, fit2$int, fit3$int, fit4$int)
-BF_matrix <- matrix(1, 4,4)
-for (i in 1:3){
-  for (j in 2:4){
-    BF_matrix[i,j]<- exp(logmarg[i]-logmarg[j])
-    BF_matrix[j,i]=(1/BF_matrix[i,j]) 
-  }
-}
-
-round_bf <- round(BF_matrix,3)
-round_bf
+```{r, code =readLines("src/lab_09.R"), echo=TRUE}
 ```
 
 We still get that every prior is favored over Prior 3 and Prior 2 is still favorable over all the others. 
