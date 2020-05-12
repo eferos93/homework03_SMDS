@@ -27,7 +27,7 @@ prior_norm_v <- Vectorize(prior_norm, "theta")
 
 # plot
 #likelihood
-curve(lik_pois_v(theta=x, data=y), xlim=c(-1,4), xlab=expression(theta), ylab = "density", lwd =2 )
+curve(lik_pois_v(theta=x, data=y), xlim=c(-3,5), xlab=expression(theta), ylab = "density", lwd =2 )
 #prior 1 with parameters 2 and 4
 curve(prior_gamma_v(theta=x, par=c(2, 4)), lty =2, col="red", add = TRUE, lwd =2)
 #prior 2 

@@ -62,7 +62,7 @@ Compute bootstrap-based confidence intervals for the `score` dataset using the `
 Use `nlm` to compute the variance for the estimator $\hat{\omega} = (\log( \hat{\gamma} ), \log( \hat{\beta} )$  and `optimHess` for the variance of $\hat{\theta} = (\hat{\gamma}, \hat{\beta})$
 
 **Solution**
-```{r lab_01, code = readLines("src/lab_01.R"), echo=TRUE}
+```{r lab_01, code = readLines("src/lab_01_2.R"), echo=TRUE}
 ```
 
 **Exercise 2**
@@ -88,6 +88,15 @@ We can see that the Wald confidence interval of level 0.95 is $[4.45; 9.32]$.
 **Exercise 3**
 
 Repeat the steps above — write the profile log-likelihood, plot it and find the deviance confidence intervals — considering this time $\gamma$ as a nuisance parameter and $\beta$ as the parameter of interest.
+
+**Solution**
+
+Let's consider $\beta$ as the paramether of interest and $\gamma$ as the nuisance parameter. We can define the profile log-likelihood as follow:
+$$ l_P(\beta)= \max_{\beta} l(\gamma, \beta; y) = l(\hat\gamma_{\beta}, \beta; y)$$
+where $\hat\gamma_{\beta}$ is constrained MLE for $\gamma$ ì, with $\beta$.
+
+```{r lab_03, code = readLines("src/lab_03.R"), echo=TRUE}
+```
  
 **Exercise 5**
 
@@ -116,11 +125,11 @@ Quickly comment.
 
 The parameter of interest, $\theta$, is the true mean of the $y_i$. After having performed the MCMC simulation, we obtain an estime for the parameter $\theta$.
 
-The first plot represent the posterior uncertainty interval, or credibility interval, for $\theta$. We can see that the value of the posterior mean, represented by the light blue point, is around $2.6$. The thick blue segment shows 50% interval, whereas the thinner light blue line show the 90% interval. So we can say that, with 50% probability the parameter $\theta$ falls between the values $2.3$ and $3.8$
+The first plot represent the posterior uncertainty interval, or credibility interval, for $\theta$. We can see that the value of the posterior mean, represented by the light blue point, is around $2.6$. The thick blue segment shows 50% interval, that goes from  $2.3$ to $3.8$, whereas the thinner light blue line show the 90% interval.
 
 The second plot represent the posterior areas. The thick blue line shows the value of the posterior mean. The curve represent the estimated posterior density. The light blue shaded area under the posterior density curve is the 80%  posterior uncertainty intervals. This plot shows all the information represented in the first one and some more, such as the posterior density.
 
-Finally the third plot represent the marginal posterior denisty for the parameter $\theta$. Even if it is shown by tue posterior areas plot too, in this case it is represented through an hystogram. Changing the value of the parameter `binwidth` we can vary the number of bins of the histogram and so how many observations are summarized by each bin.
+Finally the third plot represent the marginal posterior denisty for the parameter $\theta$. Even if it is shown by tue posterior areas plot too, in this case it is represented through an hystogram. Changing the value of the parameter `binwidth` we can vary the number of bins of the histogram and so how many observations are summarized within each bin.
 
 **Exercise 7**
 
@@ -134,9 +143,9 @@ Now, compute your posterior as $\pi(\lambda | y) \propto L(\lambda;y)\pi(\lambda
 
 **Solution**
 
-Given that $y_i \sim Poisson(\lambda)$ it is needed that $\lambda > 0$. 
+Given that $y_i \sim Poisson(\lambda)$, it is needed that $\lambda > 0$. 
 
-1. The beta distribution granantees this condition but it also limits the upper bound to 1. So the parameter $\lambda$, that is also the mean of the Possion distribution would be limited between 0 and 1 and this is not acceptable.
+1. The beta distribution granantees this condition but it also limits the upper bound to 1. So the parameter $\lambda$, that is also the mean of the Possion distribution, would be limited between 0 and 1 and this is not acceptable.
 
 2. The normal distribution does not guarantee the positivity of the parameter so it's not acceptables.
 
@@ -198,7 +207,7 @@ $$
 
 The value of $\sigma^2$ during the simulation varys a bit more that the simulation done during the Laboratory. Indeed, thanks to the `traceplot`, we can see that the majority of values are in a wider range, that goes from 1 to 3. Nevertheless the maximum reached value is lower the in the previous case.
 
-The second plot confirm our observation. Indeed the shaded area, which represent the 80% interval is wider then the one represented in the Laboratory.
+The second plot confirm our observation. The shaded area, which represent the 80% interval is wider then the one represented in the Laboratory.
 
 **Exercise 9**
 
@@ -227,7 +236,7 @@ The only thing that changes is that now Prior 4 should be preferred to Prior 1.
 
 **Exercise 10**
 
-Let $y=(1,0,0,1,0,0,0,0,0,1,0,0,1,0)$ collect the results of tossing $n=14$ times an unfair coin, where 1 denotes heads and 0 tails, and $p=Prob(y_i=1)$
+Let $y=(1,0,0,1,0,0,0,0,0,1,0,0,1,0)$ collect the results of tossing $N=14$ times an unfair coin, where 1 denotes heads and 0 tails, and $p=Prob(y_i=1)$
 
 * Looking at the `Stan` code for the other models, write a short `Stan` Beta-Binomial model, where $p$ has a $Beta(a,b)$ prior with $a=3$, $b=3$;
 
@@ -243,28 +252,27 @@ First of all we write a `Stan` code for a Beta-Binomial model as requested.
 
 ```{stan, output.var="lab10"}
 data {
-  int<lower=0> N;
-  int y[N];
-  real<lower=0> a;
-  real<lower=0> b;
+  int <lower=0> N;
+  int <lower=0> n;
+  real <lower=0> a;
+  real <lower=0> b;
 }
 
 parameters {
-  real<lower=0, upper=10> p;
+  real <lower=0, upper=1> p;
 }
 
 model {
-  target+=binomial_lpmf(y | N, p);
-  target+=gamma_lpdf(p|a,b);
+  target+=binomial_lpmf(n | N, p);
+  target+=beta_lpdf(p|a,b);
 }
-
 ```
 
 ```{r lab_10, code = readLines("src/lab_10.R"), echo=TRUE}
 ```
 After having performed the MCMC simulation and having extracted the posterior distribution we produced some plots. From that we can obtain several information about the posterior distribution of the parameter of interest $p$. 
 
-First of all we can see that the posterior mean is around $0.035$ and both the 50% posterior interval and the 90% posterior interval al not symmetrical. Indeed the first one is larger on the left side whereas the second one in wider on the right side. This means that the mass of the distribution is shifted through the left but it has a longer tail on the right side. The second and the tird plots confirm this observation. We can see that the posterior distribution is not symmetrical, its mass is shifted through 0 but it has a longer tail on the right side. Finally, form the last plot we can see the denisty posterior distribution estimated form the 4 Markov chains. They are quite similar but with some differences expecially in the more frequent values.
+First of all we can see that the posterior mean is around $0.35$. The 90% posterior interval is a bit asymmetrical, being a bit larger on the right side. This means that the distribution has a longer tail on the right side. The second and the tird plots confirm this observation. Finally, form the last plot we can see the denisty posterior distribution estimated form the 4 Markov chains that are quite similar.
 
 Let's compute the posterior distribution analitically.
 $$

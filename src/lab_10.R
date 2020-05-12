@@ -1,11 +1,12 @@
 library(rstan)
 library(bayesplot)
 y <- c(1,0,0,1,0,0,0,0,0,1,0,0,1,0)
-n <- 14
+k <- sum(y)
+N <- 14
 a <- 3
 b <- 3
-data <- list(N=n, y=y, a=a, b=b)
-fit <- stan(file="./src/binomial_gamma.stan", data=data, chains= 4, iter= 2000, refresh=-1)
+data <- list(N=N, n=k, a=a, b=b)
+fit <- stan(file="./src/binomial_beta.stan", data=data, chains= 4, iter= 2000, refresh=-1)
 
 # extract the posterior
 posterior <- extract(fit, pars="p", permuted=F)

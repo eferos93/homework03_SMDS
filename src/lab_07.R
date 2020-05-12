@@ -1,21 +1,29 @@
-#real likelihood
+# simulate data
 lambda <- 5
-#sample size
-n <- 15
-#generate some data
+num <- 15 # sample size
 set.seed(123)
-y <- rpois(n,lambda)
+data <- rpois(num,lambda) # data
+
+# likelihood
+# write the likelihood function via the gamma distribution
+likelihood_pois<- function(data, l){
+  n <- length(data)
+  dgamma(l, shape =sum(data)+1, scale=1/n)
+}
+
+likelihood_pois_v <- Vectorize(likelihood_pois, "l")
 
 #prior
 alpha <- 4
 beta <- 2
 
 #posterior parameters
-alphastar <- alpha + sum(y)
-betastar <- beta + length(y)
+alphastar <- alpha + sum(data)
+betastar <- beta + length(data)
 
 # plots
-plot(seq(1:20), dpois(seq(1:20), lambda), type="l", lwd=2, col="black", ylab="density", xlab=expression(lambda),  ylim=c(0,0.7), xlim=c(0,20))
+#likelihood
+curve(likelihood_pois_v(l=x, data=data), xlim=c(-1,15), xlab=expression(theta), ylim =c(0,1), ylab = "density", lwd =2 )
 curve(dgamma(x, alpha, beta), col="red", lty=1,lwd=2,  add =T)
 curve(dgamma(x, alphastar, betastar), col="blue", lwd=2, add= T)  
-legend(12, 0.7, c("Prior", "Likelihood", "Posterior"), c("red", "black", "blue"), lty=c(1,1,1),lwd=c(2,2,2))
+legend(8, 0.9, c("Prior", "Likelihood", "Posterior"), c("red", "black", "blue"), lty=c(1,1,1),lwd=c(2,2,2))

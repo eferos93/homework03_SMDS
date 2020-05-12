@@ -1,6 +1,6 @@
 data {
   int <lower=0> N;
-  int y[N];
+  int <lower=0> n;
   real <lower=0> a;
   real <lower=0> b;
 }
@@ -10,7 +10,6 @@ parameters {
 }
 
 model {
-  target+=binomial_lpmf(y | N, p);
-  target+=gamma_lpdf(p|a,b);
+  target+=binomial_lpmf(n | N, p);
+  target+=beta_lpdf(p|a,b);
 }
-
