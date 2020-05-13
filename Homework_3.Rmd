@@ -91,9 +91,9 @@ Repeat the steps above — write the profile log-likelihood, plot it and find th
 
 **Solution**
 
-Let's consider $\beta$ as the paramether of interest and $\gamma$ as the nuisance parameter. We can define the profile log-likelihood as follow:
+Let's consider $\beta$ as the parameter of interest and $\gamma$ as the nuisance parameter. We can define the profile log-likelihood as follows:
 $$ l_P(\beta)= \max_{\beta} l(\gamma, \beta; y) = l(\hat\gamma_{\beta}, \beta; y)$$
-where $\hat\gamma_{\beta}$ is constrained MLE for $\gamma$ ì, with $\beta$.
+where $\hat\gamma_{\beta}$ is the constrained MLE for $\gamma$ ì, with $\beta$.
 
 ```{r lab_03, code = readLines("src/lab_03.R"), echo=TRUE}
 ```
@@ -125,11 +125,11 @@ Quickly comment.
 
 The parameter of interest, $\theta$, is the true mean of the $y_i$. After having performed the MCMC simulation, we obtain an estime for the parameter $\theta$.
 
-The first plot represent the posterior uncertainty interval, or credibility interval, for $\theta$. We can see that the value of the posterior mean, represented by the light blue point, is around $2.6$. The thick blue segment shows 50% interval, that goes from  $2.3$ to $3.8$, whereas the thinner light blue line show the 90% interval.
+The first plot represents the posterior uncertainty interval, or credibility interval, for $\theta$. We can see that the value of the posterior mean, represented by the light blue point, is around $2.6$. The thick blue segment shows the 50% interval, that goes from  $2.3$ to $3.8$, whereas the thinner light blue line shows the 90% interval.
 
-The second plot represent the posterior areas. The thick blue line shows the value of the posterior mean. The curve represent the estimated posterior density. The light blue shaded area under the posterior density curve is the 80%  posterior uncertainty intervals. This plot shows all the information represented in the first one and some more, such as the posterior density.
+The second plot represents the posterior areas. The thick blue line shows the value of the posterior mean. The curve represents the estimated posterior density. The light blue shaded area under the posterior density curve is the 80%  posterior uncertainty intervals. This plot shows all the information represented in the first one and some more, such as the posterior density. 
 
-Finally the third plot represent the marginal posterior denisty for the parameter $\theta$. Even if it is shown by tue posterior areas plot too, in this case it is represented through an hystogram. Changing the value of the parameter `binwidth` we can vary the number of bins of the histogram and so how many observations are summarized within each bin.
+Finally the third plot represents the marginal posterior density for the parameter $\theta$. Even if it is shown by true posterior areas plot too, in this case it is represented through an histogram. Changing the value of the parameter `binwidth` we can vary the number of bins of the histogram and so how many observations are summarized within each bin.
 
 **Exercise 7**
 
@@ -145,11 +145,11 @@ Now, compute your posterior as $\pi(\lambda | y) \propto L(\lambda;y)\pi(\lambda
 
 Given that $y_i \sim Poisson(\lambda)$, it is needed that $\lambda > 0$. 
 
-1. The beta distribution granantees this condition but it also limits the upper bound to 1. So the parameter $\lambda$, that is also the mean of the Possion distribution, would be limited between 0 and 1 and this is not acceptable.
+1. The beta distribution guarantees this condition but it also limits the upper bound to 1. So the parameter $\lambda$, that is also the mean of the Possion distribution, would be limited between 0 and 1 and this is not acceptable.
 
-2. The normal distribution does not guarantee the positivity of the parameter so it's not acceptables.
+2. The normal distribution does not guarantee the positivity of the parameter so it's not acceptable.
 
-3. The gamma distribution is defined in the interval $[0, + \infty]$. It guarantees that $\lambda > 0$ and it does not limit the upper boud. This one seems to be the best choice.
+3. The gamma distribution is defined in the interval $[0, + \infty]$. It guarantees that $\lambda > 0$ and it does not limit the upper bound. This one seems to be the best choice.
 
 Let's try to compute analitically the posterior distribution. We know that
 $$
@@ -173,7 +173,7 @@ $$
 \end{aligned}
 $$
 
-So we can see that the Gamma distribution is the coniugate prior of the Poisson distribution since the posterior is still a Gamma with updated parameters.
+So we can see that the Gamma distribution is the conjugate prior of the Poisson distribution since the posterior is still a Gamma with updated parameters.
 
 Let's visualize this result with R.
 
@@ -205,9 +205,9 @@ y_1,...,y_n \sim \mathbb{N} (\theta; \sigma^2) \\
 \sigma^2 \sim Unif(0.1, 10)
 $$
 
-The value of $\sigma^2$ during the simulation varys a bit more that the simulation done during the Laboratory. Indeed, thanks to the `traceplot`, we can see that the majority of values are in a wider range, that goes from 1 to 3. Nevertheless the maximum reached value is lower the in the previous case.
+The value of $\sigma^2$ during the simulation varies a bit more that the simulation done during the Laboratory. Indeed, thanks to the `traceplot`, we can see that the majority of values are in a wider range, that goes from 1 to 3. Nevertheless the maximum reached value is lower than in the previous case.
 
-The second plot confirm our observation. The shaded area, which represent the 80% interval is wider then the one represented in the Laboratory.
+The second plot confirms our observation. The shaded area, which represents the 80% interval, is wider than the one represented in the Laboratory.
 
 **Exercise 9**
 
@@ -230,7 +230,7 @@ Now we want to compute the BF matrix in order to compare the prior distributions
 ```{r, code =readLines("src/lab_09.R"), echo=TRUE}
 ```
 
-We still get that every prior is favored over Prior 3 and Prior 2 is still favorable over all the others. 
+We still get that every prior is favored over Prior 3, and Prior 2 is still favorable over all the others. 
 The only thing that changes is that now Prior 4 should be preferred to Prior 1.
 
 
@@ -270,9 +270,9 @@ model {
 
 ```{r lab_10, code = readLines("src/lab_10.R"), echo=TRUE}
 ```
-After having performed the MCMC simulation and having extracted the posterior distribution we produced some plots. From that we can obtain several information about the posterior distribution of the parameter of interest $p$. 
+After having performed the MCMC simulation and having extracted the posterior distribution, we produced some plots. From them we can obtain several information about the posterior distribution of the parameter of interest $p$. 
 
-First of all we can see that the posterior mean is around $0.35$. The 90% posterior interval is a bit asymmetrical, being a bit larger on the right side. This means that the distribution has a longer tail on the right side. The second and the tird plots confirm this observation. Finally, form the last plot we can see the denisty posterior distribution estimated form the 4 Markov chains that are quite similar.
+First of all we can see that the posterior mean is around $0.35$. The 90% posterior interval is a bit asymmetrical, being a bit larger on the right side. This means that the distribution has a longer tail on the right side. The second and the third plots confirm this observation. Finally, from the last plot we can see the density posterior distribution estimated from the 4 Markov chains that are quite similar.
 
 Let's compute the posterior distribution analitically.
 $$
@@ -299,7 +299,7 @@ $$
 \end{aligned}
 $$
 
-So we know that the Beta distribution is the coniugate prior of the Bernoulli distribution since the posterior is still a Beta with updated parameters.
+So we know that the Beta distribution is the conjugate prior of the Bernoulli distribution, since the posterior is still a Beta with updated parameters.
 
 Let's compare this analitical result with the result obtained by the MCMC simulation.
 
